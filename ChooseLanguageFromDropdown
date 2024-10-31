@@ -1,0 +1,52 @@
+// Remember to add UnityEngine.Localization.Settings and UnityEngine.UI and TMPro
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Localization.Settings;
+using UnityEngine.UI;
+using TMPro;
+
+
+public class ChooseLanguageFromDropdown : MonoBehaviour
+{
+// Reference the TMPro dropdown in editor 
+    public TMPro.TMP_Dropdown dropdown;
+
+    // Use IEnumerator to create a coroutine that initializes the dropdown
+    IEnumerator Start()
+    {
+        // Wait for the localization system to initialize
+        yield return LocalizationSettings.InitializationOperation;
+
+        // Generate list of available Locales
+        var options = new List<TMP_Dropdown.OptionData>();
+        // Track the selected Locale as integer
+        int selected = 0;
+
+        // Loop all available Locales
+        for (int i = 0; i < LocalizationSettings.AvailableLocales.Locales.Count; ++i)
+        {
+            // Create var locale
+            var locale = LocalizationSettings.AvailableLocales.Locales[i];
+            // Check if the current locale is selected
+            if (LocalizationSettings.SelectedLocale == locale)
+                // Store index of selected locale
+                selected = i;
+
+            // Add the Locale to Dropdown
+            options.Add(new TMP_Dropdown.OptionData(locale.name));
+        }
+        // Set dropdown options and selected value
+        dropdown.options = options;
+        dropdown.value = selected;
+        // Add listener for dropdown value changes
+        dropdown.onValueChanged.AddListener(LocaleSelected);
+    }
+
+    // Method to change the selected locale when the user selects a new option
+    static void LocaleSelected(int index)
+    {
+        // Update the selected Locale in the localization settings
+        LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.Locales[index];
+    }
+}
