@@ -1,0 +1,114 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;  // To detect scene changes
+using TMPro;  // If you want to add UI text
+
+public class Jukebox : MonoBehaviour
+{
+    public static Jukebox instance = null;  
+    public AudioSource audioSource; // Reference the AudioSource in Editor
+    public List<AudioClip> songList; // List of the songs to play. (Do it in editor)
+
+    public string currentSongName;  // Store the current song name
+    private int currentSongIndex = 0;
+
+// Keybinds to play the next and previous song
+    [Header("Keybinds")]
+    [SerializeField] KeyCode NextKey = KeyCode.C;
+    [SerializeField] KeyCode PreviousKey = KeyCode.V;
+
+    void Awake()
+    {
+        // Ensure only one instance of the MusicManager exists across scenes
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject); // Don't destroy this when new scene is loaded
+        }
+        else
+        {
+            Destroy(gameObject);  // Destroy duplicate MusicManager objects
+        }
+    }
+
+    void Start()
+    {
+        PlaySong(currentSongIndex); // Play the first song when the game starts
+    }
+
+  // Play a song based on its index in the songList
+        public void PlaySong(int songIndex)
+    {
+        if (songIndex >= 0 && songIndex < songList.Count)
+        {
+            audioSource.clip = songList[songIndex];
+            audioSource.Play();
+            currentSongIndex = songIndex;
+            currentSongName = songList[songIndex].name;
+
+// Stop any existing coroutines and start a new one for the next song
+            StopAllCoroutines();
+            StartCoroutine(PlayNextAfterCurrentSong(audioSource.clip.length));
+        }
+        else
+        {
+            Debug.LogWarning("Invalid song index");
+        }
+    }
+
+// Coroutine to automatically play the next song after the current one ends
+    private IEnumerator PlayNextAfterCurrentSong(float songLength)
+    {
+        yield return new WaitForSeconds(songLength);  // Wait for the current song to finish
+        PlayNextSong();  // Play the next song
+    }
+
+// Play the next song in the list
+    public void PlayNextSong()
+    {
+        int nextSongIndex = (currentSongIndex + 1) % songList.Count;
+        PlaySong(nextSongIndex);
+    }
+// Play the previous song in the list
+    public void PlayPreviousSong()
+    {
+        int nextSongIndex = (currentSongIndex - 1) % songList.Count;
+        PlaySong(nextSongIndex);
+    }
+
+// Stop playing the song
+    public void StopMusic()
+    {
+        audioSource.Stop();
+        StopAllCoroutines();  // Stop the coroutine when music is stopped manually
+    }
+
+// Function to access the current song name
+    public string GetCurrentSongName()
+    {
+        return currentSongName;
+    }
+
+    public void Update()
+    {
+// If the nextKey is pressed PlayNextSong()
+        if (Input.GetKeyDown(NextKey))
+        {
+            PlayNextSong();
+        }
+// If the previousKey is pressed PlayPreviousSong()
+        if (Input.GetKeyDown(PreviousKey))
+        {
+            if(currentSongIndex != 0) // Check if the current song index and if its not 0 PlayPreviousSong()
+            {
+                PlayPreviousSong();
+            }
+            else if(currentSongIndex == 0) // If the current song index is zero Play the last song on the list
+            {
+                currentSongIndex = 10;
+                PlayPreviousSong();
+            }
+        }
+    }
+}
