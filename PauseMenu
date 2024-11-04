@@ -1,0 +1,57 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI; // Add this if you want to use UI
+
+public class PauseMenu : MonoBehaviour
+{
+
+    public static bool GameIsPaused = false;
+    public GameObject pauseMenuUI; // Reference to pauseMenu
+    public KeyCode PauseKey = KeyCode.Escape; // Key to pause
+
+    private void Start()
+    {
+// When loaded let time pass normally and set GameIsPaused to false
+        Time.timeScale = 1f;
+        GameIsPaused = false;
+    }
+
+   public void Update()
+   {
+// If the player presses the PauseKey check if the GameIsPause.
+        if (Input.GetKeyDown(PauseKey))
+        {
+// If the GameIsPaused call Resume()
+            if (GameIsPaused)
+            {
+                Resume();
+            }
+// Else Pause the game
+            else
+            {
+                Pause();
+            }
+        }
+
+   }
+
+// Resume() Set the pauseMenuUI and GameIsPaused to false and let time pass normal speed
+    public void Resume()
+    {
+            pauseMenuUI.SetActive(false);
+            Time.timeScale = 1f;
+            GameIsPaused = false;
+    }
+
+// Pause() Set the pauseMenuUI and GameIsPaused to true and stop time
+    public void Pause()
+    {
+
+            pauseMenuUI.SetActive(true);
+            Time.timeScale = 0f;
+            GameIsPaused = true;
+
+    }
+
+}
