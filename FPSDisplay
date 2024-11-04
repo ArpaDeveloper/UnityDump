@@ -1,0 +1,35 @@
+// Remember to add UnityEngine.UI and TMPro
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.UI;
+using UnityEngine;
+using TMPro;
+
+public class FPSDisplay : MonoBehaviour
+{
+// Reference TMPRO text in Editor
+    public TextMeshProUGUI FpsText;
+// Variables
+    private float pollingTime = 1f; //How often fps is updated (every second)
+    private float time;
+    private int frameCount;
+
+    void Update()
+    {
+// Update time
+        time += Time.deltaTime;
+// Count frames
+        frameCount++; 
+
+        if(time >= pollingTime)
+        {
+// Calculate and Round frameRate to an integer
+            int frameRate = Mathf.RoundToInt(frameCount / time);
+// Update the string to show fps
+            FpsText.text = frameRate.ToString() + " FPS";
+// Reset counter
+            time -= pollingTime;
+            frameCount = 0;
+        }
+    }
+}
